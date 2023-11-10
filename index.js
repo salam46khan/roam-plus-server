@@ -32,8 +32,29 @@ async function run() {
     const teamCollection = client.db('roamPlus').collection('team');
     const featureCollection = client.db('roamPlus').collection('choose')
     const FAQcollection = client.db('roamPlus').collection('faq');
+    const serviceCollection = client.db('roamPlus').collection('services')
 
-    
+    // service data ----------------------
+    app.get('/home-services', async(req, res)=>{
+        const cursor = serviceCollection.find().limit(4)
+        const result = await cursor.toArray()
+        res.send(result)
+    })
+    app.get('/services', async(req, res)=>{
+        const cursor = serviceCollection.find()
+        const result = await cursor.toArray()
+        res.send(result)
+    })
+    app.post('/services', async(req, res)=>{
+        const service = req.body;
+        console.log(service);
+        const result =await serviceCollection.insertOne(service)
+        res.send(result)
+    })
+
+
+
+
 // immutable data -------------------------
     app.get('/team', async(req, res)=>{
         const cursor = teamCollection.find()
