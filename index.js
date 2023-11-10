@@ -28,12 +28,35 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+    const teamCollection = client.db('roamPlus').collection('team');
+    const featureCollection = client.db('roamPlus').collection('choose')
+    const FAQcollection = client.db('roamPlus').collection('faq');
+
+    
+// immutable data -------------------------
+    app.get('/team', async(req, res)=>{
+        const cursor = teamCollection.find()
+        const result = await cursor.toArray()
+        res.send(result)
+    })
+    app.get('/feature', async(req, res)=>{
+        const cursor = featureCollection.find()
+        const result = await cursor.toArray()
+        res.send(result)
+    })
+    app.get('/faq', async(req, res)=>{
+        const cursor = FAQcollection.find()
+        const result  =await cursor.toArray()
+        res.send(result)
+    })
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
-    await client.close();
+    // await client.close();
   }
 }
 run().catch(console.dir);
