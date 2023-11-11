@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000
@@ -8,8 +8,6 @@ const port = process.env.PORT || 5000
 // middleware 
 app.use(cors());
 app.use(express.json());
-
-console.log(process.env.DB_USER);
 
 
 
@@ -35,41 +33,65 @@ async function run() {
     const serviceCollection = client.db('roamPlus').collection('services')
 
     // service data ----------------------
-    app.get('/home-services', async(req, res)=>{
-        const cursor = serviceCollection.find().limit(4)
-        const result = await cursor.toArray()
-        res.send(result)
+    app.get('/home-services', async (req, res) => {
+      const cursor = serviceCollection.find().limit(4)
+      const result = await cursor.toArray()
+      res.send(result)
     })
-    app.get('/services', async(req, res)=>{
-        const cursor = serviceCollection.find()
-        const result = await cursor.toArray()
-        res.send(result)
+    app.get('/services', async (req, res) => {
+      const cursor = serviceCollection.find()
+      const result = await cursor.toArray()
+      res.send(result)
     })
-    app.post('/services', async(req, res)=>{
-        const service = req.body;
-        console.log(service);
-        const result =await serviceCollection.insertOne(service)
-        res.send(result)
+    app.post('/services', async (req, res) => {
+      const service = req.body;
+      console.log(service);
+      const result = await serviceCollection.insertOne(service)
+      res.send(result)
+    })
+
+    app.get('/services/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) };
+      const result = await serviceCollection.findOne(query)
+      res.send(result)
+    })
+
+    app.delete('/services/:id', async(req, res) =>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await serviceCollection.deleteOne(query)
+      res.send(result)
+    })
+
+    app.get('/my-services', async(req, res) =>{
+      let query = {}
+      if(req.query?.email){
+        query = {provider_email: req.query.email}
+      }
+      const cursor = serviceCollection.find(query)
+      const result = await cursor.toArray()
+      res.send(result)
     })
 
 
 
 
-// immutable data -------------------------
-    app.get('/team', async(req, res)=>{
-        const cursor = teamCollection.find()
-        const result = await cursor.toArray()
-        res.send(result)
+    // immutable data -------------------------
+    app.get('/team', async (req, res) => {
+      const cursor = teamCollection.find()
+      const result = await cursor.toArray()
+      res.send(result)
     })
-    app.get('/feature', async(req, res)=>{
-        const cursor = featureCollection.find()
-        const result = await cursor.toArray()
-        res.send(result)
+    app.get('/feature', async (req, res) => {
+      const cursor = featureCollection.find()
+      const result = await cursor.toArray()
+      res.send(result)
     })
-    app.get('/faq', async(req, res)=>{
-        const cursor = FAQcollection.find()
-        const result  =await cursor.toArray()
-        res.send(result)
+    app.get('/faq', async (req, res) => {
+      const cursor = FAQcollection.find()
+      const result = await cursor.toArray()
+      res.send(result)
     })
 
     // Send a ping to confirm a successful connection
@@ -87,9 +109,9 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('roam plus is running successfuly')
+  res.send('roam plus is running successfuly')
 })
 
-app.listen(port, ()=>{
-    console.log(`roam plus is running from ${port}`);
+app.listen(port, () => {
+  console.log(`roam plus is running from ${port}`);
 })
