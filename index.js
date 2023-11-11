@@ -57,17 +57,34 @@ async function run() {
       res.send(result)
     })
 
-    app.delete('/services/:id', async(req, res) =>{
+    app.delete('/services/:id', async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await serviceCollection.deleteOne(query)
       res.send(result)
     })
+    app.put('/services/:id', async (req, res) => {
+      const id = req.params.id;
+      const updateService = req.body
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateSer = {
+        $set: {
+          service_name: updateService.service_name, 
+          service_area: updateService.service_area, 
+          price: updateService.price, 
+          photoURL: updateService.photoURL, 
+          discription: updateService.discription
+        },
+      }
+      const result = await serviceCollection.updateOne(filter, updateSer, options)
+      res.send(result)
+    })
 
-    app.get('/my-services', async(req, res) =>{
+    app.get('/my-services', async (req, res) => {
       let query = {}
-      if(req.query?.email){
-        query = {provider_email: req.query.email}
+      if (req.query?.email) {
+        query = { provider_email: req.query.email }
       }
       const cursor = serviceCollection.find(query)
       const result = await cursor.toArray()
