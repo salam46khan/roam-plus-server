@@ -25,7 +25,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const teamCollection = client.db('roamPlus').collection('team');
     const featureCollection = client.db('roamPlus').collection('choose')
@@ -67,6 +67,26 @@ async function run() {
       res.send(result)
     })
 
+    app.put('/booking/:id', async(req, res)=>{
+      const id = req.params.id;
+      const updateStatus = req.body
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const curentStatus = {
+        $set: {
+          status: updateStatus.status
+        },
+      }
+      const result = await bookingCollection.updateOne(filter,curentStatus, options)
+      res.send(result)
+    })
+
+    app.get('/booking/:id', async(req, res)=>{
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) };
+      const result = await bookingCollection.findOne(query)
+      res.send(result)
+    })
 
     // service data ----------------------
     app.get('/home-services', async (req, res) => {
@@ -169,7 +189,7 @@ async function run() {
     })
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
