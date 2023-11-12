@@ -38,11 +38,23 @@ async function run() {
       const result = await cursor.toArray()
       res.send(result)
     })
+    
+
+// search api --------------
     app.get('/services', async (req, res) => {
-      const cursor = serviceCollection.find()
+      let query = {}
+      if (req.query?.area) {
+        query = { service_area: { $regex: req.query.area, $options: 'i' } }
+        
+      }
+      const cursor = serviceCollection.find(query)
       const result = await cursor.toArray()
       res.send(result)
     })
+
+    
+
+
     app.post('/services', async (req, res) => {
       const service = req.body;
       console.log(service);
