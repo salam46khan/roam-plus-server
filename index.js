@@ -31,6 +31,42 @@ async function run() {
     const featureCollection = client.db('roamPlus').collection('choose')
     const FAQcollection = client.db('roamPlus').collection('faq');
     const serviceCollection = client.db('roamPlus').collection('services')
+    const bookingCollection = client.db('roamPlus').collection('booking')
+
+    // booking data ---------------
+    app.post('/booking', async(req, res)=>{
+      const booking = req.body;
+      console.log(booking);
+      const result = await bookingCollection.insertOne(booking)
+      res.send(result)
+    })
+
+    app.get('/booking', async(req, res)=>{
+      const cursor = bookingCollection.find()
+      const result = await cursor.toArray()
+      res.send(result)
+    })
+
+    app.get('/my-booking', async(req, res)=>{
+      let query = {}
+      if (req.query?.email) {
+        query = { user_email: req.query.email }
+      }
+      const cursor = bookingCollection.find(query)
+      const result = await cursor.toArray()
+      res.send(result)
+    })
+
+    app.get('/my-pending-work', async(req, res)=>{
+      let query = {}
+      if (req.query?.email) {
+        query = { provider_email: req.query.email }
+      }
+      const cursor = bookingCollection.find(query)
+      const result = await cursor.toArray()
+      res.send(result)
+    })
+
 
     // service data ----------------------
     app.get('/home-services', async (req, res) => {
@@ -43,8 +79,8 @@ async function run() {
 // search api --------------
     app.get('/services', async (req, res) => {
       let query = {}
-      if (req.query?.area) {
-        query = { service_area: { $regex: req.query.area, $options: 'i' } }
+      if (req.query?.name) {
+        query = { service_name: { $regex: req.query.name, $options: 'i' } }
         
       }
       const cursor = serviceCollection.find(query)
@@ -52,6 +88,15 @@ async function run() {
       res.send(result)
     })
 
+    app.get('/services-filter', async(req, res)=>{
+      const area = req.query.area
+      const query = {service_area : { $regex: area } };
+      console.log(area);
+      
+      const cursor = serviceCollection.find(query)
+      const result = await cursor.toArray()
+      res.send(result)
+    })
     
 
 
